@@ -1,20 +1,18 @@
 import SwiftUI
 
 public struct ContentView: View {
+    @Environment(\.modelContext) private var context
+    
     public init() {}
 
     public var body: some View {
-        Text("Hello, World!")
-            .padding()
-            .task {
-                do {
-                    let conversation = try await LMManager.shared.conversation
-                    let response = try await conversation.sendMessage(.init("Hello World!"))
-                    print("Response: ", response.toString)
-                } catch {
-                    print(error)
-                }
-            }
+        VStack {
+            Text("Jarvis")
+            // Navigation needs to be added
+//            ConversationView(viewModel: .init())
+            HomeView(viewModel: .init(conversationRepository: .init(context: context)))
+        }
+        .padding()
     }
 }
 

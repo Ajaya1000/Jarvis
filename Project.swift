@@ -21,8 +21,15 @@ let project = Project(
                 "Jarvis/Resources",
             ],
             dependencies: [
-                .external(name: "LiteRTLM")
-            ]
+                .external(name: "LiteRTLM"),
+                .external(name: "Textual"),
+                .external(name: "ExyteChat")
+            ],
+            settings: .settings(
+                base: [
+                    "DEVELOPMENT_TEAM": "Q4Y732FL55"
+                ]
+            )
         ),
         .target(
             name: "JarvisTests",
