@@ -6,13 +6,7 @@ public struct ContentView: View {
     public init() {}
 
     public var body: some View {
-        VStack {
-            Text("Jarvis")
-            // Navigation needs to be added
-//            ConversationView(viewModel: .init())
-            HomeView(viewModel: .init(conversationRepository: .init(context: context)))
-        }
-        .padding()
+        HomeView(viewModel: .init(conversationRepository: .init(context: context)))
     }
 }
 

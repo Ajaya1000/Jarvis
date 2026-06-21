@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/google-ai-edge/LiteRT-LM", from: "0.12.0"),
         .package(url: "https://github.com/gonzalezreal/textual", from: "0.1.0"),
-        .package(url: "https://github.com/exyte/Chat.git", from: "3.1.7")
+        .package(url: "https://github.com/exyte/Chat.git", from: "3.1.7"),
+        .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.0.2")
     ]
 )

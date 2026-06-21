@@ -1,3 +1,5 @@
+import ExyteChat
+import LiteRTLM
 //
 //  ConversationView.swift
 //  Jarvis
@@ -5,9 +7,7 @@
 //  Created by Ajaya Mati on 20/06/26.
 //
 import SwiftUI
-import LiteRTLM
 import Textual
-import ExyteChat
 
 typealias LiteRTLMMessage = LiteRTLM.Message
 typealias ChatMessage = ExyteChat.Message
@@ -15,11 +15,11 @@ typealias ChatMessage = ExyteChat.Message
 struct ConversationView: View {
     @State var text: String = ""
     @State var viewModel: ConversationViewModel
-    
+
     private var isTextValid: Bool {
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-    
+
     var body: some View {
         ChatView(messages: viewModel.messageList) { draft in
             Task {
@@ -30,15 +30,40 @@ struct ConversationView: View {
             if message.user.isCurrentUser {
                 params.defaultMessageView()
             } else {
-                HStack {
-                    StructuredText(markdown: message.text).textual.structuredTextStyle(.gitHub)
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "sparkles")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            Color.accentColor,
+                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        )
+
+                    StructuredText(markdown: (message.customData["preText"] as? String) ?? "")
+                        .textual
+                        .structuredTextStyle(.gitHub)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            Color(.secondarySystemGroupedBackground),
+                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        )
+
                     Spacer()
                 }
-                .padding()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
             }
         }
         .betweenListAndInputViewBuilder {
             InProgressIndicatorView(visible: viewModel.isRequestInProgress)
+        }
+
+        .navigationTitle(viewModel.conversation.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .task {
+            viewModel.prepareConversationHelper()
         }
     }
 }
@@ -46,19 +71,18 @@ struct ConversationView: View {
 struct InProgressIndicatorView: View {
     var visible: Bool
     @State private var isAnimating = false
-    
+
     var body: some View {
         if visible {
             HStack {
-                Spacer() // Force alignment to the center
+                Spacer()
                 
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     ForEach(0..<3) { index in
                         Circle()
-                            .fill(Color(.systemGray2))
-                            .frame(width: 7, height: 7)
-                            .offset(y: isAnimating ? -5 : 0)
-                        // Create a sequential wave effect using linear delay multipliers
+                            .fill(Color.secondary)
+                            .frame(width: 6, height: 6)
+                            .offset(y: isAnimating ? -4 : 0)
                             .animation(
                                 Animation.easeInOut(duration: 0.5)
                                     .repeatForever(autoreverses: true)
@@ -67,19 +91,20 @@ struct InProgressIndicatorView: View {
                             )
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color(.systemGray5))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                
-                Spacer() // Force alignment to the center
+                .frame(height: 18)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(
+                    Color(.secondarySystemGroupedBackground),
+                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                )
+
+                Spacer()
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .onAppear {
-                DispatchQueue.main.async {
-                    isAnimating = true
-                }
+                isAnimating = true
             }
             .onDisappear {
                 isAnimating = false
@@ -88,4 +113,8 @@ struct InProgressIndicatorView: View {
             EmptyView()
         }
     }
+}
+
+#Preview {
+    InProgressIndicatorView(visible: true)
 }

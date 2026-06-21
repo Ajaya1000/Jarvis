@@ -23,7 +23,8 @@ let project = Project(
             dependencies: [
                 .external(name: "LiteRTLM"),
                 .external(name: "Textual"),
-                .external(name: "ExyteChat")
+                .external(name: "ExyteChat"),
+                .external(name: "MarkdownUI")
             ],
             settings: .settings(
                 base: [

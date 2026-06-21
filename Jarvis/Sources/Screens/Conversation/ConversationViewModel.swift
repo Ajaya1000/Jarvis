@@ -16,25 +16,51 @@ class ConversationViewModel {
     private let repository: ConversationRepository
 
     private var _conversationHelper: ConversationHelper?
+    private var conversationHelperTask: Task<ConversationHelper, Error>?
 
     var messageList: [ChatMessage] {
-        print(conversation.conversationList.map {$0.user.rawValue})
-        return conversation.conversationList.map { chatMessageModel in
-            ChatMessage(id: chatMessageModel.id.uuidString, user: chatMessageModel.user.messageUser, createdAt: chatMessageModel.createdAt, text: chatMessageModel.text)
+        let messageList =  conversation.conversationList.map { chatMessageModel in
+            return ChatMessage(id: chatMessageModel.id.uuidString, user: chatMessageModel.user.messageUser, createdAt: chatMessageModel.createdAt, text: chatMessageModel.text, customData: ["preText": chatMessageModel.text])
         }
         .sorted(using: KeyPathComparator(\.createdAt))
+        return messageList
     }
-
+    
     init(conversation: ConversationHistory, repository: ConversationRepository) {
         self.conversation = conversation
         self.repository = repository
     }
 
-    private func initializeConversationHelper() async throws -> ConversationHelper  {
-        let conversationHelper = try await LMManager.shared.getNewConversationHelper(with: conversation)
-        self._conversationHelper = conversationHelper
+    func prepareConversationHelper() {
+        guard conversationHelperTask == nil else {
+            return
+        }
 
-        return conversationHelper
+        let conversation = conversation
+        conversationHelperTask = Task { @ConversationHelperPreparationActor in
+            try await LMManager.shared.getNewConversationHelper(with: conversation)
+        }
+    }
+
+    private func getConversationHelper() async throws -> ConversationHelper  {
+        if let _conversationHelper {
+            return _conversationHelper
+        }
+
+        prepareConversationHelper()
+
+        guard let conversationHelperTask else {
+            throw NSError(domain: "ConversationViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "Conversation helper task was not created"])
+        }
+
+        do {
+            let conversationHelper = try await conversationHelperTask.value
+            self._conversationHelper = conversationHelper
+            return conversationHelper
+        } catch {
+            self.conversationHelperTask = nil
+            throw error
+        }
     }
 
     func sendMessage(draft: DraftMessage) async {
@@ -46,22 +72,22 @@ class ConversationViewModel {
         var assistantMessage: ChatMessageModel?
 
         do {
-            let conversationHelper = try await initializeConversationHelper()
-
-            conversation.conversationList.append(ChatMessageModel(user: ChatUser.user, createdAt: draft.createdAt, text: draft.text, conversation: conversation))
+            conversation.conversationList.append(ChatMessageModel(user: ChatUser.user.rawValue, createdAt: draft.createdAt, text: draft.text, conversation: conversation))
             conversation.lastUpdated = .now
 
             try repository.save()
+            
+            let conversationHelper = try await getConversationHelper()
 
             let stream = await conversationHelper.stream(with: .init(draft.text))
-
+            
             for try await tokenChunk in stream {
                 if assistantMessage == nil {
-                    let newAssistantMessage = ChatMessageModel(user: ChatUser.assistant, text: "", conversation: conversation)
+                    let newAssistantMessage = ChatMessageModel(user: ChatUser.assistant.rawValue, text: "", conversation: conversation)
                     conversation.conversationList.append(newAssistantMessage)
                     assistantMessage = newAssistantMessage
                 }
-
+                
                 assistantMessage?.text += tokenChunk.toString
                 conversation.lastUpdated = .now
             }

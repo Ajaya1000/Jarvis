@@ -12,16 +12,16 @@ import ExyteChat
 class ConversationHistory {
     @Attribute(.unique)
     var id: UUID
-    
+
     var startDate: Date
-    
+
     var lastUpdated: Date
-    
+
     var title: String
-    
+
     @Relationship(deleteRule: .cascade, inverse: \ChatMessageModel.conversation)
     var conversationList: [ChatMessageModel]
-    
+
     init(id: UUID = UUID(), startDate: Date = .now, lastUpdated: Date = .now, title: String, conversationList: [ChatMessageModel] = []) {
         self.id = id
         self.startDate = startDate
@@ -34,24 +34,28 @@ class ConversationHistory {
 @Model
 class ChatMessageModel {
     var id: UUID
-    var user: ChatUser
+    var userRawValue: String
     var text: String
     var conversation: ConversationHistory?
     var createdAt: Date
-    
-    init(id: UUID = UUID(), user: ChatUser, createdAt: Date = .now, text: String, conversation: ConversationHistory) {
+
+    init(id: UUID = UUID(), user: String, createdAt: Date = .now, text: String, conversation: ConversationHistory) {
         self.id = id
-        self.user = user
+        self.userRawValue = user
         self.createdAt = createdAt
         self.text = text
         self.conversation = conversation
+    }
+
+    var user: ChatUser {
+        return ChatUser(rawValue: userRawValue) ?? .user
     }
 }
 
 enum ChatUser: String, Codable {
     case user
     case assistant
-    
+
     var messageUser: User {
         switch self {
         case .user:
