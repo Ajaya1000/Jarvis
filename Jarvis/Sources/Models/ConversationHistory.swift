@@ -6,7 +6,6 @@
 //
 import Foundation
 import SwiftData
-import ExyteChat
 
 @Model
 class ConversationHistory {
@@ -56,12 +55,12 @@ enum ChatUser: String, Codable {
     case user
     case assistant
 
-    var messageUser: User {
+    var messageUser: ChatParticipant {
         switch self {
         case .user:
-            return User(id: "currentUser", name: "You", avatarURL: nil, avatarCacheKey: nil, isCurrentUser: true)
+            return .currentUser
         case .assistant:
-            return User(id: "jarvis", name: "Jarvis", avatarURL: nil, type: .other)
+            return .assistant
         }
     }
 }

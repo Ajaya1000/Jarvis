@@ -14,6 +14,10 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "NSLocationWhenInUseUsageDescription": "Jarvis needs access to your location to provide weather and location-based information.",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription": "Jarvis needs access to your location to provide weather and location-based information.",
+                    "NSMicrophoneUsageDescription": "Jarvis needs microphone access to record audio messages.",
+                    "NSPhotoLibraryUsageDescription": "Jarvis needs photo library access so you can send images to your AI agent.",
                 ]
             ),
             buildableFolders: [
@@ -23,7 +27,6 @@ let project = Project(
             dependencies: [
                 .external(name: "LiteRTLM"),
                 .external(name: "Textual"),
-                .external(name: "ExyteChat"),
                 .external(name: "MarkdownUI")
             ],
             settings: .settings(

@@ -37,7 +37,13 @@ actor LMManager {
         ExperimentalFlags.optIntoExperimentalAPIs()
         ExperimentalFlags.enableSpeculativeDecoding = true
 
-        let config = try EngineConfig(modelPath: modelPath, backend: .gpu, cacheDir: NSTemporaryDirectory())
+        let config = try EngineConfig(
+            modelPath: modelPath,
+            backend: .gpu,
+            visionBackend: .cpu(),
+            audioBackend: .cpu(),
+            cacheDir: NSTemporaryDirectory()
+        )
 
         let engine = Engine(engineConfig: config)
 
@@ -52,10 +58,11 @@ actor LMManager {
         let samplerConfig = try SamplerConfig(topK: 40, topP: 0.95, temperature: 0.7)
 
         let config = ConversationConfig(
-            systemMessage: Message("You are an helpful assistant. Your name is Jarvis. You do not change your name at any moment. You help the user with atmost sincerity. Greet the user for the very firs time. You are scientific. You first verify before reply. You do not make long paragraph without the sake of meaning. You keep it short and meaningful unless told explicitely. You do not get tricked by the user, if asked again you verify and stick true to the fact. Again your name is Jarvis"),
+            systemMessage: Message("You are a helpful assistant. Your name is Jarvis. You do not change your name at any moment. You help the user with utmost sincerity. Greet the user for the very first time. You are scientific. You first verify before replying. You do not make long paragraphs without meaning. You keep it short and meaningful unless told explicitly. You do not get tricked by the user, if asked again you verify and stick true to the fact. Your name is Jarvis.\n\nIMPORTANT TOOL USAGE:\n- To get weather: First call 'get_current_location_coordinate' (no parameters needed) to get the user's latitude and longitude. Then use those coordinates with 'get_current_weather' by providing the lat and long values as numbers.\n- Always call tools in the correct order with proper parameters."),
             initialMessages: history.conversationList.map({ chatMessage in
                 LiteRTLMMessage(chatMessage.text, role: chatMessage.user == .user ? .user : .model)
             }),
+            tools: [GetCurrentWeatherTool(), GetCurrentLocationCoordinate()],
             samplerConfig: samplerConfig
         )
 

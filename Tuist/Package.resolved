@@ -1,60 +1,6 @@
 {
-  "originHash" : "e2e08f464fba423c73030cdeb2a4a45402276d96e61bdfc7cdde46919b4f4608",
+  "originHash" : "d508aa32f500dd0556f5fa2dc51434189e710cea34dfa78729706c06da7763fc",
   "pins" : [
-    {
-      "identity" : "activityindicatorview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/exyte/ActivityIndicatorView",
-      "state" : {
-        "revision" : "15384b0f9ca3a9b072e12ab779d545e9717adba4",
-        "version" : "2.0.0"
-      }
-    },
-    {
-      "identity" : "anchoredpopup",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/exyte/AnchoredPopup.git",
-      "state" : {
-        "revision" : "2fb9d1ac101b86cbcc12a3f8e571648ce4469d18",
-        "version" : "1.1.3"
-      }
-    },
-    {
-      "identity" : "chat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/exyte/Chat.git",
-      "state" : {
-        "revision" : "8bc259c970f232ebaf319faeab23ab1977538b14",
-        "version" : "3.1.7"
-      }
-    },
-    {
-      "identity" : "giphy-ios-sdk",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Giphy/giphy-ios-sdk",
-      "state" : {
-        "revision" : "37f5b1ff6cf8bc4a78c0bc5eb1b814381bac9580",
-        "version" : "2.2.16"
-      }
-    },
-    {
-      "identity" : "kingfisher",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Kingfisher",
-      "state" : {
-        "revision" : "ac632bd26a1c00f139ff62fd01806f21cf67325e",
-        "version" : "8.10.0"
-      }
-    },
-    {
-      "identity" : "libwebp-xcode",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SDWebImage/libwebp-Xcode",
-      "state" : {
-        "revision" : "0d60654eeefd5d7d2bef3835804892c40225e8b2",
-        "version" : "1.5.0"
-      }
-    },
     {
       "identity" : "litert-lm",
       "kind" : "remoteSourceControl",
@@ -62,15 +8,6 @@
       "state" : {
         "revision" : "a0afb5a56acd106b23a2b2385b8469834dc268c0",
         "version" : "0.13.1"
-      }
-    },
-    {
-      "identity" : "mediapicker",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/exyte/MediaPicker.git",
-      "state" : {
-        "revision" : "ce2eda6300337d1478a78fc033bce8dd9bf4bb2c",
-        "version" : "3.3.2"
       }
     },
     {

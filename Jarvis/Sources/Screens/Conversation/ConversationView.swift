@@ -1,4 +1,3 @@
-import ExyteChat
 import LiteRTLM
 //
 //  ConversationView.swift
@@ -7,59 +6,18 @@ import LiteRTLM
 //  Created by Ajaya Mati on 20/06/26.
 //
 import SwiftUI
-import Textual
 
 typealias LiteRTLMMessage = LiteRTLM.Message
-typealias ChatMessage = ExyteChat.Message
 
 struct ConversationView: View {
-    @State var text: String = ""
     @State var viewModel: ConversationViewModel
 
-    private var isTextValid: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     var body: some View {
-        ChatView(messages: viewModel.messageList) { draft in
+        LocalChatView(messages: viewModel.messageList, isRequestInProgress: viewModel.isRequestInProgress) { draft in
             Task {
                 await viewModel.sendMessage(draft: draft)
             }
-        } messageBuilder: { params in
-            let message = params.message
-            if message.user.isCurrentUser {
-                params.defaultMessageView()
-            } else {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "sparkles")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 28, height: 28)
-                        .background(
-                            Color.accentColor,
-                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        )
-
-                    StructuredText(markdown: (message.customData["preText"] as? String) ?? "")
-                        .textual
-                        .structuredTextStyle(.gitHub)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(
-                            Color(.secondarySystemGroupedBackground),
-                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        )
-
-                    Spacer()
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-            }
         }
-        .betweenListAndInputViewBuilder {
-            InProgressIndicatorView(visible: viewModel.isRequestInProgress)
-        }
-
         .navigationTitle(viewModel.conversation.title)
         .navigationBarTitleDisplayMode(.inline)
         .task {

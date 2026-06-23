@@ -1,0 +1,28 @@
+info:
+  name: open meteo
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: https://api.open-meteo.com/v1/forecast?latitude=12.8684&longitude=77.6932&hourly=temperature_2m,rain,wind_speed_10m&forecast_days=1
+  params:
+    - name: latitude
+      value: "12.8684"
+      type: query
+    - name: longitude
+      value: "77.6932"
+      type: query
+    - name: hourly
+      value: temperature_2m,rain,wind_speed_10m
+      type: query
+    - name: forecast_days
+      value: "1"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

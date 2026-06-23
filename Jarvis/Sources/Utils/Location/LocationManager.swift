@@ -8,23 +8,38 @@
 import Foundation
 import CoreLocation
 
-class LocationManager: NSObject, CLLocationManagerDelegate {
+enum LocationError: Error {
+    case notAuthorised
+    case unknown
+}
+
+fileprivate class LocationManager: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
+    private var didUpdateLocation: ((CLLocationCoordinate2D) -> Void)?
 
-    private var authorizationStatus: CLAuthorizationStatus = .notDetermined
-
-    init(updateCallback: (CLLocationCoordinate2D) -> Void) {
+    init(didUpdateLocation: ((CLLocationCoordinate2D) -> Void)?) throws(LocationError) {
         super.init()
+        self.didUpdateLocation = didUpdateLocation
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        try initiate()
     }
     
-    func initiate() {
-        if authorizationStatus == .notDetermined {
+    private func initiate() throws(LocationError) {
+        switch manager.authorizationStatus {
+        case .notDetermined:
             requestLocationPermission()
-        } else {
+        case .restricted, .denied:
+            throw .notAuthorised
+        case .authorizedWhenInUse, .authorizedAlways:
             startUpdatingLocation()
+        @unknown default:
+            throw .unknown
         }
+    }
+    
+    func tearDown() {
+        stopUpdatingLocation()
     }
     
     private func requestLocationPermission() {
@@ -43,12 +58,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         // Grab the most recent location update
         if let lastLocation = locations.last {
-            self.delegate?.didUpdateLocation(location: lastLocation.coordinate)
+            didUpdateLocation?(lastLocation.coordinate)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        self.authorizationStatus = status
         if status == .authorizedWhenInUse || status == .authorizedAlways {
             manager.startUpdatingLocation()
         }
@@ -56,5 +70,26 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Failed to find user's location: \(error.localizedDescription)")
+    }
+}
+
+class LocationUtil {
+    // need to hold location manager otherwise it would get deinitalized
+    private var locationManager: LocationManager?
+    
+    func getCurrentLocation() async throws -> CLLocationCoordinate2D {
+        try await withCheckedThrowingContinuation { continuation in
+            Task { @MainActor in
+                do {
+                    self.locationManager =  try LocationManager { [weak self] location in
+                        self?.locationManager?.tearDown()
+                        self?.locationManager = nil
+                        continuation.resume(returning: location)
+                    }
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 }
